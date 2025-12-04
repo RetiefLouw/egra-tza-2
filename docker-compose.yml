@@ -1,0 +1,30 @@
+version: "3.9"
+
+x-base: &egra_base
+  image: nemo_inference_nemo-asr:latest
+  build:
+    context: .
+    dockerfile: docker/Dockerfile
+  working_dir: /work
+  environment:
+    PYTHONUNBUFFERED: "1"
+  volumes:
+    - ./:/work:rw                               # your repo root (contains main.py, infer.py, etc.)
+    - ./input_output_data:/io:rw                # input/output data root
+    - ./nemo_inference/models:/models:ro        # .nemo models
+    - ./nemo_inference/tmp:/tmp_segments:rw     # temp segments (and kept if debug flag is used)
+
+services:
+  nemo-asr:
+    <<: *egra_base
+    container_name: nemo-asr
+    # Enable GPU access for this service when the host supports NVIDIA GPUs.
+    # Requires the NVIDIA container toolkit on the host. If you don't have a GPU
+    # or don't want GPU access, remove or comment out the following line.
+    gpus: "all"
+
+  egra-eval:
+    <<: *egra_base
+    container_name: egra-eval
+    # gpus: "all"   # not needed for CPU-only eval
+

@@ -1,0 +1,14 @@
+# Files and folders to exclude from docker build context
+__pycache__
+*.pyc
+.git
+.env
+.venv
+tmp
+
+# Ignore the whole input_output_data directory by default but allow a single CSV
+input_output_data/**
+!input_output_data/output/
+!input_output_data/output/experiments/
+!input_output_data/output/experiments/exp1/
+!input_output_data/output/experiments/exp1/egra_eval_detailed.csv

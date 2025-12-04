@@ -1,0 +1,35 @@
+# Ignore Python builds
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.build/
+dist/
+.env
+.venv/
+.env*/
+.venv*/
+.ipynb_checkpoints/
+.mypy_cache/
+.pytest_cache/
+.DS_Store
+
+# Keep away of git the project data & models
+# Keep the folder structure via .gitkeep files inside each dir.
+
+# input_output_data
+input_output_data/**
+!input_output_data/.gitkeep
+!input_output_data/**/.gitkeep
+
+# Allow a specific CSV used for the Streamlit deployment (override the general ignore)
+!input_output_data/output/
+!input_output_data/output/experiments/
+!input_output_data/output/experiments/exp1/
+!input_output_data/output/experiments/exp1/egra_eval_detailed.csv
+
+# nemo_inference
+nemo_inference/**
+!nemo_inference/.gitkeep
+!nemo_inference/**/.gitkeep
