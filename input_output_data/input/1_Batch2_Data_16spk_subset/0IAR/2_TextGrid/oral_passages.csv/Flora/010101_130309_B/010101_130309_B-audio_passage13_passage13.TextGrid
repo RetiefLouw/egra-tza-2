@@ -1,0 +1,30 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 86.144 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "Child" 
+        xmin = 0 
+        xmax = 86.144 
+        intervals: size = 4 
+        intervals [1]:
+            xmin = 0 
+            xmax = 22.369436532507738 
+            text = "masele alisoma shule ya msingi maendeleo mjomba a- aitwae kwame aliishi mjini likizo iliyopita alienda kumsalimia" 
+        intervals [2]:
+            xmin = 22.369436532507738 
+            xmax = 45.867730793045965 
+            text = "mjomba wake ilikua ni mala ya kwanza kwenda mjini alifulahia kuona majengo makubwa na malefu alishangaa kuona magali mengi na watu wengi alijifunza" 
+        intervals [3]:
+            xmin = 45.867730793045965 
+            xmax = 68.44591112169564 
+            text = "mengi kuhusu maisha ya mjini mjomba wake alim- alimnunulia pilau na so na soda alimpelekea ku- kutembelea sehemu mbalimbali za sehemu mbalimbali" 
+        intervals [4]:
+            xmin = 68.44591112169564 
+            xmax = 86.144 
+            text = "ku- kuvutia aliludi aliludi nyumbani akiwa na fulaha" 

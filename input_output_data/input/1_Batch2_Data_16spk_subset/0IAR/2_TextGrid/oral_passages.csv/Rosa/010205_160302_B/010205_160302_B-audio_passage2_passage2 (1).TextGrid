@@ -1,0 +1,34 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 99.072 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "Child" 
+        xmin = 0 
+        xmax = 99.072 
+        intervals: size = 5 
+        intervals [1]:
+            xmin = 0 
+            xmax = 16.226840705227342 
+            text = "Lucy alitamani kute- kutengeneza bustani yenye kuvutia" 
+        intervals [2]:
+            xmin = 16.226840705227342 
+            xmax = 37.010271574389115 
+            text = "alimuomba kaka yake Samili amsaidie kutengeneza bustani walipanda mbegu za maua ya rangi mbalimbali walipanda mbegu za maua ya rangi" 
+        intervals [3]:
+            xmin = 37.010271574389115 
+            xmax = 61.13389669038045 
+            text = "nyekundu njano na sawa samawati kila siku walimwagilia bustani na kuchunguza maua yana- yanavyoota baada ya siku chache maua ya kupendeza yaliota kila mahali Lucy" 
+        intervals [4]:
+            xmin = 61.13389669038045 
+            xmax = 76.18064602486754 
+            text = "endi Samili walijifunza kuwa u <eh> kuwa uvumilivu huleta matokeo mazuli" 
+        intervals [5]:
+            xmin = 76.18064602486754 
+            xmax = 99.072 
+            text = "bustani yao  ilipendeza na ku- kuwavutia vipepeo na nyuki" 

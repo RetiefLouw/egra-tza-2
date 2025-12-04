@@ -1,0 +1,42 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 147.84 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "Child" 
+        xmin = 0 
+        xmax = 147.84 
+        intervals: size = 7 
+        intervals [1]:
+            xmin = 0 
+            xmax = 23.59753144260469 
+            text = "amina ami amani amani na juma wanaishi karibu na soko siku moja walikwenda sokoni kununua nanasi" 
+        intervals [2]:
+            xmin = 23.59753144260469 
+            xmax = 44.80507101494605 
+            text = "walipokifa walipofika sokoni hawakuona na nanasi kabisa amina alinu- ali" 
+        intervals [3]:
+            xmin = 44.80507101494605 
+            xmax = 67.05984570495792 
+            text = "a alimuomba mama mia amuonyeshe ma ma wanapouza nanasi mama" 
+        intervals [4]:
+            xmin = 67.05984570495792 
+            xmax = 90.58095534876412 
+            text = "mia alimwambia ameshauza nanasi zote aliwashauli wanunue miche ya nanasi wak- wakapande" 
+        intervals [5]:
+            xmin = 90.58095534876412 
+            xmax = 113.1195872179589 
+            text = "nyumbani kwa ami ma amina na juma na juma mwa walinunua miche ya nanasi ya kwenda kupanda nyumbani kwao " 
+        intervals [6]:
+            xmin = 113.1195872179589 
+            xmax = 133.21240082236204 
+            text = "walijifunza kuwa kupanda nanasi kuna hitaji muda ili kuwa kuna kuna manufaa makubwa " 
+        intervals [7]:
+            xmin = 133.21240082236204 
+            xmax = 147.84 
+            text = "" 

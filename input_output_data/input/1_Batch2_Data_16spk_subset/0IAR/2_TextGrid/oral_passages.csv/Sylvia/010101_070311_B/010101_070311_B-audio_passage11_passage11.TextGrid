@@ -1,0 +1,58 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 147.84 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "Child" 
+        xmin = 0 
+        xmax = 147.84 
+        intervals: size = 11 
+        intervals [1]:
+            xmin = 0 
+            xmax = 4.010786950856293 
+            text = "<enumerator>" 
+        intervals [2]:
+            xmin = 4.010786950856293 
+            xmax = 16.843284158600152 
+            text = "amina ami amani amani na juma wanaishi karibu na soko" 
+        intervals [3]:
+            xmin = 16.843284158600152 
+            xmax = 23.538500093075207 
+            text = "siku moja walikwenda sokoni kununua nanasi " 
+        intervals [4]:
+            xmin = 23.538500093075207 
+            xmax = 33.134976265822786 
+            text = "walipofika walipofika sokoni " 
+        intervals [5]:
+            xmin = 33.134976265822786 
+            xmax = 36.036236504095314 
+            text = "<enumerator>" 
+        intervals [6]:
+            xmin = 36.036236504095314 
+            xmax = 53.55538486597171 
+            text = "awakuona na- nanasi kabisa amina alimu ali- ali- alimuomba mama niya amuonyeshe " 
+        intervals [7]:
+            xmin = 53.55538486597171 
+            xmax = 70.29342470215936 
+            text = "na na wanapouza nanasi mama niya alimwambia " 
+        intervals [8]:
+            xmin = 70.29342470215936 
+            xmax = 94.61937593075206 
+            text = "ameshauza nanasi zote aliwashauli wanunue miche ya nanasi wak- wakapande nyumbani kwa ami ma amina" 
+        intervals [9]:
+            xmin = 94.61937593075206 
+            xmax = 113.25439361504097 
+            text = "na juma na juma mwa <ah> walinunua miche ya nanasi ya kwenda kupanda nyumbani kwao" 
+        intervals [10]:
+            xmin = 113.25439361504097 
+            xmax = 127.20276014519733 
+            text = "walijifunza kuwa kupanda nanasi kuna hitaji muda ili kuwa kuna  " 
+        intervals [11]:
+            xmin = 127.20276014519733 
+            xmax = 147.84 
+            text = "kuna manufaa makubwa" 

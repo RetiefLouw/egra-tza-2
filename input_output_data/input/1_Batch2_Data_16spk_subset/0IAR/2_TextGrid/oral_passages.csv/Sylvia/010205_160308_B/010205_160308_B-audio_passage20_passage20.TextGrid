@@ -1,0 +1,46 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 95.872 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "Child" 
+        xmin = 0 
+        xmax = 95.872 
+        intervals: size = 8 
+        intervals [1]:
+            xmin = 0 
+            xmax = 18.520670234549517 
+            text = "mzee juma alipeleka saida na hawa kutembea bahalini waliona samaki wakubwa " 
+        intervals [2]:
+            xmin = 18.520670234549517 
+            xmax = 24.38202745718541 
+            text = "na wadogo wakielea  bahalini w" 
+        intervals [3]:
+            xmin = 24.38202745718541 
+            xmax = 31.618270941921075 
+            text = "walimuona jabili na wenzake wakivua samaki " 
+        intervals [4]:
+            xmin = 31.618270941921075 
+            xmax = 49.92596695830231 
+            text = "saida na hawa walifulahi ku- kuona meli zikiwa zinaelekea bahalini pia waliona " 
+        intervals [5]:
+            xmin = 49.92596695830231 
+            xmax = 63.918625 
+            text = "meli kubwa zikiwa zimeegeshwa bahalini jabili aliwaeleza umuhimu wa bahali" 
+        intervals [6]:
+            xmin = 63.918625 
+            xmax = 70.738875 
+            text = "pia aliwafundisha kuhusu uvuvi salama" 
+        intervals [7]:
+            xmin = 70.738875 
+            xmax = 87.6991579486225 
+            text = "ilikua safali ya kufulahisha na ya kujifunza walirudi nyumbani wakiwa na fulaha tele" 
+        intervals [8]:
+            xmin = 87.6991579486225 
+            xmax = 95.872 
+            text = "<enumerator>" 

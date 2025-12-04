@@ -1,0 +1,38 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 139.008 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "Child" 
+        xmin = 0 
+        xmax = 139.008 
+        intervals: size = 6 
+        intervals [1]:
+            xmin = 0 
+            xmax = 22.277198952131464 
+            text = "shule ya manze iliandaa siku ya michezo shuleni kaze alitamani sana" 
+        intervals [2]:
+            xmin = 22.277198952131464 
+            xmax = 44.320179852345795 
+            text = "kuingia ila a kuingiza ila alikua anaona aibu lafiki yake masori alimshauri manze wafanye" 
+        intervals [3]:
+            xmin = 44.320179852345795 
+            xmax = 67.391071778995 
+            text = "mazoezi kwa pamoja kila siku walifanya mazoezi ya kuingiza kuingiza kwa juhudi" 
+        intervals [4]:
+            xmin = 67.391071778995 
+            xmax = 91.18660138881586 
+            text = "ilipofika siku ya michezo kaze alimza kuogopa baada ya kumuona m- masoli akitabasamu alipata ujasiri waliweza" 
+        intervals [5]:
+            xmin = 91.18660138881586 
+            xmax = 115.58867768516315 
+            text = "kumringiza vizuri michezo wote bila kukosea kazi alijifunza kuwa" 
+        intervals [6]:
+            xmin = 115.58867768516315 
+            xmax = 139.008 
+            text = "kufanya kazi kwa pamoja kunasaidia kuondoa hofu" 

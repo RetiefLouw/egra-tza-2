@@ -1,0 +1,38 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 95.872 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "Child" 
+        xmin = 0 
+        xmax = 95.872 
+        intervals: size = 6 
+        intervals [1]:
+            xmin = 0 
+            xmax = 13.158883139767722 
+            text = "mzee Juma alipeleka Saida na" 
+        intervals [2]:
+            xmin = 13.158883139767722 
+            xmax = 24.545473669942396 
+            text = "Hawa kutembea baharini waliona samaki wakubwa na wadogo wakielea baharini" 
+        intervals [3]:
+            xmin = 24.545473669942396 
+            xmax = 39.49894798065371 
+            text = "walimuona Jabili na wenzake wakivua samaki Saida na Hawa walifulahi" 
+        intervals [4]:
+            xmin = 39.49894798065371 
+            xmax = 63.78119525584548 
+            text = "ku- kuona meli zikiwa zinaelekea baharini pia waliona meli kubwa zikiwa zimeegeshwa bahalini Jabili aliwaeleza umuhimu wa bahali" 
+        intervals [5]:
+            xmin = 63.78119525584548 
+            xmax = 82.98749253565818 
+            text = "pia aliwafundisha kuhusu uvuvi salama ilikuwa safari ya kufalahisha na ya kujifunza waliludi nyumbani" 
+        intervals [6]:
+            xmin = 82.98749253565818 
+            xmax = 95.872 
+            text = "wakiwa na fulaha tele" 

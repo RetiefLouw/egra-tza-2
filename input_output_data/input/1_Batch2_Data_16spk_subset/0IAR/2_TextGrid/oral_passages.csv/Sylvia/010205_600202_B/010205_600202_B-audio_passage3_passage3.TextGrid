@@ -1,0 +1,50 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 124.288 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "Child" 
+        xmin = 0 
+        xmax = 124.288 
+        intervals: size = 9 
+        intervals [1]:
+            xmin = 0 
+            xmax = 5.529476265822785 
+            text = "<enumerator>" 
+        intervals [2]:
+            xmin = 5.529476265822785 
+            xmax = 18.193868484735667 
+            text = "juma na loza ni marafiki walioishi katika kijiji cha makone " 
+        intervals [3]:
+            xmin = 18.193868484735667 
+            xmax = 36.6745000930752 
+            text = "makone wa- walipokua wanatoka shule walimuona mzee semu mzee sebu akiwa amebeba pikapu " 
+        intervals [4]:
+            xmin = 36.6745000930752 
+            xmax = 53.654166697691736 
+            text = "walimkimbilia kumsaidia  kikapu alichokua amebeba " 
+        intervals [5]:
+            xmin = 53.654166697691736 
+            xmax = 66.78761048026806 
+            text = "mzee sebu alitabasamu na kuwashukuru sana wajukuu zake " 
+        intervals [6]:
+            xmin = 66.78761048026806 
+            xmax = 75.7934005026061 
+            text = "walibeba ki- kile kikapu hadi nyumbani kwa mzee sabu " 
+        intervals [7]:
+            xmin = 75.7934005026061 
+            xmax = 91.459722728965 
+            text = "aliwa- aliwashukuru na kuwasawa na kuwasawanye kazi kwa juhudi " 
+        intervals [8]:
+            xmin = 91.459722728965 
+            xmax = 110.78464715189874 
+            text = "juma na ro- loza wali- walijifunza kua kuwa kuwa kuwasaidia wazee ni tabia njema " 
+        intervals [9]:
+            xmin = 110.78464715189874 
+            xmax = 124.288 
+            text = "<enumerator>" 

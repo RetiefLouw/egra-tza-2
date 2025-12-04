@@ -1,0 +1,17 @@
+learner_id,gender,child_grade,child_age,region,council,ward,Kiswahili_lang1,Kigogo_lang2,Kirangi_lang3,Kihaya_lang4,Runyambo_lang5,Kihangaza_lang6,English_lang7
+010101_130309_B,Male,Grade 3,12,Dar es salaam,Dar es salaam CC,Gongolamboto,Yes,No,No,No,No,No,No
+010101_130209_G,Female,Grade 2,7,Dar es salaam,Dar es salaam CC,Gongolamboto,Yes,No,No,No,No,No,No
+010101_130311_G,Female,Grade 3,8,Dar es salaam,Dar es salaam CC,Gongolamboto,Yes,No,No,No,No,No,No
+010205_160302_B,Male,Grade 3,10,Dar es salaam,Temeke MC,Toangoma,Yes,No,No,No,No,No,No
+010205_240203_B,Male,Grade 2,6,Dar es salaam,Temeke MC,Toangoma,Yes,No,No,No,No,No,No
+010101_070311_B,Male,Grade 3,10,Dar es salaam,Dar es salaam CC,Gongolamboto,Yes,No,No,No,No,No,No
+010205_160305_G,Female,Grade 3,9,Dar es salaam,Temeke MC,Toangoma,Yes,No,No,No,No,No,No
+010101_330202_B,Male,Grade 2,7,Dar es salaam,Dar es salaam CC,Gongolamboto,Yes,No,No,No,No,No,No
+010101_330317_B,Male,Grade 3,8,Dar es salaam,Dar es salaam CC,Gongolamboto,Yes,No,No,No,No,No,No
+010205_600303_G,Female,Grade 3,8,Dar es salaam,Temeke MC,Toangoma,Yes,No,No,No,No,No,No
+010205_160308_B,Male,Grade 3,9,Dar es salaam,Temeke MC,Toangoma,Yes,No,No,No,No,No,No
+010101_070321_G,Female,Grade 3,9,Dar es salaam,Dar es salaam CC,Gongolamboto,Yes,No,No,No,No,No,No
+010101_070311_G,Female,Grade 3,10,Dar es salaam,Dar es salaam CC,Gongolamboto,Yes,No,No,No,No,No,No
+010205_240210_B,Male,Grade 2,8,Dar es salaam,Temeke MC,Toangoma,Yes,No,No,No,No,No,No
+010205_600202_B,Male,Grade 2,7,Dar es salaam,Temeke MC,Toangoma,No,No,No,No,Yes,No,No
+010205_240305_G,Female,Grade 3,9,Dar es salaam,Temeke MC,Toangoma,Yes,No,No,No,No,No,No

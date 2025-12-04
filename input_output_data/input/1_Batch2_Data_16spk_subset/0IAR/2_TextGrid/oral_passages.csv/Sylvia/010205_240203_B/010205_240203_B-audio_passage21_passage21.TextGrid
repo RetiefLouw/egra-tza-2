@@ -1,0 +1,46 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 74.112 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "Child" 
+        xmin = 0 
+        xmax = 74.112 
+        intervals: size = 8 
+        intervals [1]:
+            xmin = 0 
+            xmax = 9.78603769545793 
+            text = "tola na tenda walitamani kwenda mbuga za wanyama " 
+        intervals [2]:
+            xmin = 9.78603769545793 
+            xmax = 13.645786206254654 
+            text = "walitembelea mbuga a wanyama luaha " 
+        intervals [3]:
+            xmin = 13.645786206254654 
+            xmax = 21.980605454206998 
+            text = "waliona simba tembo na ndege wa langi mbalimbali waliwaona " 
+        intervals [4]:
+            xmin = 21.980605454206998 
+            xmax = 28.413519638868202 
+            text = "wanyama wakila majani na" 
+        intervals [5]:
+            xmin = 28.413519638868202 
+            xmax = 36.86021565524944 
+            text = "nyasi wa manola waliwafundisha kuhusu wanyama na tabia zao " 
+        intervals [6]:
+            xmin = 36.86021565524944 
+            xmax = 51.68388747207744 
+            text = "walifulahi kujifunza kuhusu wanyama na tabia zao kulimshuku walimshukulu manola kwa ukalimu wake" 
+        intervals [7]:
+            xmin = 51.68388747207744 
+            xmax = 56.774280435591955 
+            text = "walirudi nyumbani wakiwa na fulaha " 
+        intervals [8]:
+            xmin = 56.774280435591955 
+            xmax = 74.112 
+            text = "walijifunza kuusu elimu ya wanyama na mazingira " 

@@ -1,0 +1,46 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 96.256 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "Child" 
+        xmin = 0 
+        xmax = 96.256 
+        intervals: size = 8 
+        intervals [1]:
+            xmin = 0 
+            xmax = 17.14180640357409 
+            text = "doto na s na sele wanaishi katika kijiji cha iloge " 
+        intervals [2]:
+            xmin = 17.14180640357409 
+            xmax = 24.988251675353688 
+            text = "siku moja waliamua kufanya mashindano ya kuendesha baiskeli" 
+        intervals [3]:
+            xmin = 24.988251675353688 
+            xmax = 36.32200595681311 
+            text = "waliweka alama ya mahali pa kuanzia na kumaliza mashindano wote " 
+        intervals [4]:
+            xmin = 36.32200595681311 
+            xmax = 45.04027848101266 
+            text = "kuma waliendesha baiskeli kwa kasi sana doto" 
+        intervals [5]:
+            xmin = 45.04027848101266 
+            xmax = 53.39528965003724 
+            text = "alishinda sele na sele alimpongeza lafiki yake kwa kushinda " 
+        intervals [6]:
+            xmin = 53.39528965003724 
+            xmax = 61.241734921816835 
+            text = "walijipongeza kwa kuny- kunywa soda kwa pamoja " 
+        intervals [7]:
+            xmin = 61.241734921816835 
+            xmax = 74.31914370811617 
+            text = "walijifunza kuwa kushi- kushinda ni fulaha ila kufulahi pamoja ni fulaha " 
+        intervals [8]:
+            xmin = 74.31914370811617 
+            xmax = 96.256 
+            text = "zaidi walipanga kufanya mashindano ya kuendesha baiskeli tena iya ijayo ijae " 

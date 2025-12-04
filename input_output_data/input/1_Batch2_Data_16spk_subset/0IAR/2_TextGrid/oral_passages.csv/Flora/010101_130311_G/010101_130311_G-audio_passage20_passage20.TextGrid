@@ -1,0 +1,50 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 190.08 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "Child" 
+        xmin = 0 
+        xmax = 190.08 
+        intervals: size = 9 
+        intervals [1]:
+            xmin = 0 
+            xmax = 3.2992964973114973 
+            text = "<enumerator>" 
+        intervals [2]:
+            xmin = 3.2992964973114973 
+            xmax = 27.16091790096644 
+            text = "hawaku mzee juma aliwapepelekea saida na hawa hawa kute- kutembea ha" 
+        intervals [3]:
+            xmin = 27.16091790096644 
+            xmax = 49.5763804316726 
+            text = "baharini waliona samaki wakubwa na wadogo wakielea <unk> bahalini <unk> walimonea- walimuonea" 
+        intervals [4]:
+            xmin = 49.5763804316726 
+            xmax = 70.54568408942997 
+            text = "jabili na wanzake wenzake wa wakimvua samaki saida na hawa wali- walifurahi" 
+        intervals [5]:
+            xmin = 70.54568408942997 
+            xmax = 93.27184481549621 
+            text = "kuona meli za zi zikiwa zikiwa zinaelea zinaelea baharini pia waliona " 
+        intervals [6]:
+            xmin = 93.27184481549621 
+            xmax = 117.18430774202827 
+            text = "me- mel- meli kubwa za zikiwa zimeenge zimelindali ji jabili wa ali" 
+        intervals [7]:
+            xmin = 117.18430774202827 
+            xmax = 140.684389427446 
+            text = "a aliwaeleze- aliwaeleza umuhimu wa bahari pia aliwafundisha kuhusu uvuaji sa- sarama" 
+        intervals [8]:
+            xmin = 140.684389427446 
+            xmax = 165.26909026757534 
+            text = "pili kuwasafili ya ku- kufa- kufara kufurahia na ya kuji- kujifunza wali wa- waliludi" 
+        intervals [9]:
+            xmin = 165.26909026757534 
+            xmax = 190.08 
+            text = "nyumbani wakiwa na fulaha tele" 

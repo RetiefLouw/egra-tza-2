@@ -1,0 +1,42 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 124.288 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "Child" 
+        xmin = 0 
+        xmax = 124.288 
+        intervals: size = 7 
+        intervals [1]:
+            xmin = 0 
+            xmax = 6.118599918864096 
+            text = "<enumerator>" 
+        intervals [2]:
+            xmin = 6.118599918864096 
+            xmax = 28.739183989181875 
+            text = "Juma na Roza ni marafiki walioishi katika kijiji cha makone makone wa- walipokuwa wanatoka shule walimuona mzee" 
+        intervals [3]:
+            xmin = 28.739183989181875 
+            xmax = 52.41188824881676 
+            text = "Semu mzee Sebu akiwa amebeba pikapu walimkimbilia kumsaidia kikapu alichokuwa amebeba" 
+        intervals [4]:
+            xmin = 52.41188824881676 
+            xmax = 76.08459250845165 
+            text = "mzee Sebu alitabasamu na kuwashukuru sana wajukuu zake walibeba ki- kile kikapu hadi nyumbani kwa mzee Samu" 
+        intervals [5]:
+            xmin = 76.08459250845165 
+            xmax = 88.00862132071218 
+            text = "aliwa- aliwashukuru na kuwasa wa na kuwasa wafanye" 
+        intervals [6]:
+            xmin = 88.00862132071218 
+            xmax = 100.98477032228983 
+            text = "kazi kwa juhudi Juma na Ro- Roza wali- walijifunza kuwa kuwa-" 
+        intervals [7]:
+            xmin = 100.98477032228983 
+            xmax = 124.288 
+            text = "kuwa- kuwasaidia wazee ni tabia njema" 

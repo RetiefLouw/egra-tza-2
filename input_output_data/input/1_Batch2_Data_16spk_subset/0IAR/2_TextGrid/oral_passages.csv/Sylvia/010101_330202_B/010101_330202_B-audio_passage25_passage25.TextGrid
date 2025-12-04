@@ -1,0 +1,50 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 95.36 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "Child" 
+        xmin = 0 
+        xmax = 95.36 
+        intervals: size = 9 
+        intervals [1]:
+            xmin = 0 
+            xmax = 5.466083860759494 
+            text = "<enumerator>" 
+        intervals [2]:
+            xmin = 5.466083860759494 
+            xmax = 14.822962118391661 
+            text = "amani alikwenda kutembelea babu yake kijijini " 
+        intervals [3]:
+            xmin = 14.822962118391661 
+            xmax = 26.914927866716308 
+            text = "alinu nunulia babu yake zawadi ya matunda na mkate amani alifulahi" 
+        intervals [4]:
+            xmin = 26.914927866716308 
+            xmax = 31.37743903574088 
+            text = "kumuona babu yake " 
+        intervals [5]:
+            xmin = 31.37743903574088 
+            xmax = 47.64401200670142 
+            text = "babu alifurahi kumtembelea na mjukuu wake pia " 
+        intervals [6]:
+            xmin = 47.64401200670142 
+            xmax = 54.91358665301564 
+            text = "alifurahia zawadi alipewa na mjukuu wake " 
+        intervals [7]:
+            xmin = 54.91358665301564 
+            xmax = 74.49105500744602 
+            text = "arim-  ali- ali- alimsimulia amani hadithi nzuri ya ku- ku- kufurahisha amani alijifunza  " 
+        intervals [8]:
+            xmin = 74.49105500744602 
+            xmax = 84.92757306403576 
+            text = "hadithi zenye maadili mema wote walicheka na kufurahia pamoja" 
+        intervals [9]:
+            xmin = 84.92757306403576 
+            xmax = 95.36 
+            text = "na amani alivura kutembelea babu yake wakati wa " 

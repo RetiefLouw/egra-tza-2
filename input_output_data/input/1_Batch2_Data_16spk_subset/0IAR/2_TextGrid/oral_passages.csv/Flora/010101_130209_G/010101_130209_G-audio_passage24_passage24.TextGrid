@@ -1,0 +1,42 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 180.224 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "Child" 
+        xmin = 0 
+        xmax = 180.224 
+        intervals: size = 7 
+        intervals [1]:
+            xmin = 0 
+            xmax = 23.10742938794951 
+            text = "wanafunzi wanafunzi walikusanyika uwanjani kucheza mpila kila mmoja alichagua timu" 
+        intervals [2]:
+            xmin = 23.10742938794951 
+            xmax = 45.022736461062145 
+            text = "anayoipenda wa- wakiwa wanacheza zomboka al- alianguka chini na kuumia mkono" 
+        intervals [3]:
+            xmin = 45.022736461062145 
+            xmax = 67.91904967849489 
+            text = "walisimamisha <um> kucheza mpira na kumpeleka kwa mwalimu ndaro mwalimu a ndalo" 
+        intervals [4]:
+            xmin = 67.91904967849489 
+            xmax = 91.22257299356988 
+            text = "alimpeleka zahanati iliyo- iliyo karibu na shule zomboka alipata matibabu haraka na ku- kuruhusiwa" 
+        intervals [5]:
+            xmin = 91.22257299356988 
+            xmax = 112.84172726839722 
+            text = "kwenda nyumbani mwalimu alimsindikiza zomboka nyumbami aliu aliwaambia wazazi walichotokea wakati" 
+        intervals [6]:
+            xmin = 112.84172726839722 
+            xmax = 136.68202753036437 
+            text = "wanacheza mpira wazazi wal- walimshukuru mwalimu kwa upendo wake" 
+        intervals [7]:
+            xmin = 136.68202753036437 
+            xmax = 180.224 
+            text = "" 

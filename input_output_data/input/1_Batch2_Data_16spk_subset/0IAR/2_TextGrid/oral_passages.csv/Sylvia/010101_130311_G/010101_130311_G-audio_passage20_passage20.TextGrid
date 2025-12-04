@@ -1,0 +1,58 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 190.08 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "Child" 
+        xmin = 0 
+        xmax = 190.08 
+        intervals: size = 11 
+        intervals [1]:
+            xmin = 0 
+            xmax = 3.865505863737902 
+            text = "<enumerator>" 
+        intervals [2]:
+            xmin = 3.865505863737902 
+            xmax = 26.96400083767685 
+            text = "hawafunzi juma aliwapele pelekea saida na hawa hawa kute- kutembea ha " 
+        intervals [3]:
+            xmin = 26.96400083767685 
+            xmax = 44.036801470588244 
+            text = "baharini waliona samaki wakubwa na wadogo wakielea ha baharini" 
+        intervals [4]:
+            xmin = 44.036801470588244 
+            xmax = 61.970415580789286 
+            text = "<sa> walimuonea walimuonea jabili na wanzake wenzake wa- wakimvua samaki " 
+        intervals [5]:
+            xmin = 61.970415580789286 
+            xmax = 84.06462816455698 
+            text = "saida na hawa wali- walifurahi kuona meli za zi- zikiwa " 
+        intervals [6]:
+            xmin = 84.06462816455698 
+            xmax = 108.16740552866719 
+            text = "zikiwa zinaelea zinaelea baharini pia waliona me- meli meli kubwa za zikiwa zimeenge zime e" 
+        intervals [7]:
+            xmin = 108.16740552866719 
+            xmax = 128.84137500000003 
+            text = "ndali i jabili wa ali- a- aliwaelez- aliwaeleza umuhimu wa bahari pia " 
+        intervals [8]:
+            xmin = 128.84137500000003 
+            xmax = 140.59137983991067 
+            text = "aliwafundisha kuhusu uvuaji sa- salama " 
+        intervals [9]:
+            xmin = 140.59137983991067 
+            xmax = 154.9382711280715 
+            text = "pili kua safili ya kufa kufaraha kufurahia na ya " 
+        intervals [10]:
+            xmin = 154.9382711280715 
+            xmax = 174.15260148376612 
+            text = "kuji- kujifunza wali- wa- walirudi nyumbani wakiwa na " 
+        intervals [11]:
+            xmin = 174.15260148376612 
+            xmax = 190.08 
+            text = " fulaha tele" 

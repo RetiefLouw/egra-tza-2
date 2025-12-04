@@ -1,0 +1,46 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 145.92 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "Child" 
+        xmin = 0 
+        xmax = 145.92 
+        intervals: size = 8 
+        intervals [1]:
+            xmin = 0 
+            xmax = 10.401304405326831 
+            text = "<enumerator>" 
+        intervals [2]:
+            xmin = 10.401304405326831 
+            xmax = 31.69045604423932 
+            text = "Dotto na na Sele mwa- mwa- wanaishi katika kijiji cha iloge siku moja walimua walimua kufanya mashindano ya kuendesha baiskeli" 
+        intervals [3]:
+            xmin = 31.69045604423932 
+            xmax = 55.422625084338485 
+            text = "wali- wali- wali- waliweka alama ya maandishi mahali <noise> mahali pa kuanzia na kuwa- kumalizia mashindano wote" 
+        intervals [4]:
+            xmin = 55.422625084338485 
+            xmax = 78.80579163855384 
+            text = "upya <unk> waliendelea ba- baiskeli kwa kwa kai- kasi na Dotto a- aliwashinda Sele na" 
+        intervals [5]:
+            xmin = 78.80579163855384 
+            xmax = 98.00092836216346 
+            text = "Se- Seli Sele ana alip- alipoge- alipongezwa fa- fa- <eeh> lafiki yake kwa kushi- kushida waji- walijipongeza kwa" 
+        intervals [6]:
+            xmin = 98.00092836216346 
+            xmax = 119.46458124401785 
+            text = "kuny- kunywa soda kwa pamoja walijifunza kwa ku- ushi- kushinda ni fulaha hili kufany- kufwa- kufahul- kufulahi pamoja ni fulaha" 
+        intervals [7]:
+            xmin = 119.46458124401785 
+            xmax = 139.532224182337 
+            text = "zaidi walipanga kufanya mashindano ya kuendesha baiskeli tena ili <uu> ili ili ija- ijayo i- ijayo" 
+        intervals [8]:
+            xmin = 139.532224182337 
+            xmax = 145.92 
+            text = "" 

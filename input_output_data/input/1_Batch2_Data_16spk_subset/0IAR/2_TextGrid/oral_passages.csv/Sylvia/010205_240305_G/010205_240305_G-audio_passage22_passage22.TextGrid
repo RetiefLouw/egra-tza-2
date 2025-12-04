@@ -1,0 +1,50 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 90.112 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "Child" 
+        xmin = 0 
+        xmax = 90.112 
+        intervals: size = 9 
+        intervals [1]:
+            xmin = 0 
+            xmax = 11.014546537602383 
+            text = "soda sonda ali- alichuma machungwa kwenye shamba lake " 
+        intervals [2]:
+            xmin = 11.014546537602383 
+            xmax = 16.517875 
+            text = "aliw- aliweka kwenye kikapu na kupeleka sokoni" 
+        intervals [3]:
+            xmin = 16.517875 
+            xmax = 22.577078183172002 
+            text = "alipofika sokoni alikutana na  maliamu " 
+        intervals [4]:
+            xmin = 22.577078183172002 
+            xmax = 37.06425018615041 
+            text = "alim alikua anauza nyanya alizochuma kwenye bustani yake" 
+        intervals [5]:
+            xmin = 37.06425018615041 
+            xmax = 47.47052866716307 
+            text = "walizunguka walizungumza umuhimu wa kuwa na bustani ya matunda shuleni kwao " 
+        intervals [6]:
+            xmin = 47.47052866716307 
+            xmax = 57.26467311988087 
+            text = "wali- walimuambia mwalimu nzunda wazo la kuanzisha bustani ya matunda " 
+        intervals [7]:
+            xmin = 57.26467311988087 
+            xmax = 71.1397110945644 
+            text = "mwalimu aliwash- aliwashilikisha wanafunzi wengine kuanza kuanzisha bustani ya matunda shuleni" 
+        intervals [8]:
+            xmin = 71.1397110945644 
+            xmax = 80.79782576321668 
+            text = "wanafunzi walifulahi kuanzisha bustani ya matunda shuleni kwao " 
+        intervals [9]:
+            xmin = 80.79782576321668 
+            xmax = 90.112 
+            text = "<enumerator>" 

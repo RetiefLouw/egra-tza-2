@@ -1,0 +1,38 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 138.88 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "Child" 
+        xmin = 0 
+        xmax = 138.88 
+        intervals: size = 6 
+        intervals [1]:
+            xmin = 0 
+            xmax = 30.349834212305606 
+            text = "" 
+        intervals [2]:
+            xmin = 30.349834212305606 
+            xmax = 54.646478611674546 
+            text = "ko si hu gu nu ja ndwi ju mbu hwi ndwa ng'e yu lwa nywi fwo" 
+        intervals [3]:
+            xmin = 54.646478611674546 
+            xmax = 75.4161907595222 
+            text = "che su ndwi she i cho ndu ch z- zwe ra vi pu so le ru i i wi" 
+        intervals [4]:
+            xmin = 75.4161907595222 
+            xmax = 96.18590290736984 
+            text = "mu vi gi he ho yo yo ve vo fi mba ga tu mo fe mwi" 
+        intervals [5]:
+            xmin = 96.18590290736984 
+            xmax = 115.97591165201712 
+            text = "ne fyi ndu ti no e fa nga ng'a nga do li ki ngwa" 
+        intervals [6]:
+            xmin = 115.97591165201712 
+            xmax = 138.88 
+            text = "fwa ndwe zwo li ngwa la ngo ha vu ndwa pwi kyu to" 

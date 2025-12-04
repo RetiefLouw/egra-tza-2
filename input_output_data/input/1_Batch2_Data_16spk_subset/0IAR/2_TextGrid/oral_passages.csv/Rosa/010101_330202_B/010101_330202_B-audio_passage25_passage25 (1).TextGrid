@@ -1,0 +1,34 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 95.36 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "Child" 
+        xmin = 0 
+        xmax = 95.36 
+        intervals: size = 5 
+        intervals [1]:
+            xmin = 0 
+            xmax = 5.373010551814192 
+            text = "" 
+        intervals [2]:
+            xmin = 5.373010551814192 
+            xmax = 27.08927143007767 
+            text = "Amani alikwenda kutembelea babu yake kijijini alimnunulia babu yake zawadi ya matunda na mkate Amani alifurahi" 
+        intervals [3]:
+            xmin = 27.08927143007767 
+            xmax = 47.99678043953726 
+            text = "kumuona babu yake babu alifurahi kumtembelea na mjukuu wake pia" 
+        intervals [4]:
+            xmin = 47.99678043953726 
+            xmax = 72.32551819599934 
+            text = "alifurahia zawadi alizopewa na mjukuu wake alimsu alim- alim- alimsimulia Amani hadithi ndhuri ya ku- ku- kufurahisha Amani" 
+        intervals [5]:
+            xmin = 72.32551819599934 
+            xmax = 95.36 
+            text = "alijifunza hadithi zenye maadili mema wote walicheka na kufurahia pamoja na Amani alienda kutembelea babu yake wakati wa" 
