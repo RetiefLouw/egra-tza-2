@@ -20,6 +20,127 @@ The purpose of this project is to evaluate NeMo ASR models on the task of early 
 The project transcribes the audio files in the input dataset using the input ASR model and computes the KPIs listed above.
 
 
+### Task for new metrics:
+
+The following table has the audio_type variables as they appear in egra_eval_detailed.csv and in which test category the results must be aggregated.
+
+audio_type
+Task
+Passages
+T1
+passage_num11
+T1
+***
+
+
+Syllable Grid
+T2
+full_syllable1_grid
+T2
+full_syllable1_grid
+T2
+***
+
+
+Syllable Isolated
+T3
+iso_syllable1_1
+T3
+iso_syllable1_2
+T3
+iso_syllable1_3
+T3
+iso_syllable1_4
+T3
+iso_syllable1_5
+T3
+rand_syllable_10_1
+T3
+rand_syllable_11_1
+T3
+rand_syllable_12_1
+T3
+rand_syllable_13_1
+T3
+rand_syllable_14_1
+T3
+rand_syllable_15_1
+T3
+rand_syllable_16_1
+T3
+rand_syllable_17_1
+T3
+rand_syllable_18_1
+T3
+rand_syllable_19_1
+T3
+rand_syllable_20_1
+T3
+rand_syllable_6_1
+T3
+rand_syllable_7_1
+T3
+rand_syllable_8_1
+T3
+rand_syllable_9_1
+T3
+***
+
+
+Non-words Grid
+T4
+full_nonword_grid
+T4
+***
+
+
+Non-words Isolated
+T5
+iso_non_word1
+T5
+iso_non_word2
+T5
+iso_non_word3
+T5
+iso_non_word4
+T5
+iso_non_word5
+T5
+iso_random_nw_jami_10
+T5
+iso_random_nw_kamula_2
+T5
+iso_random_nw_kojima_5
+T5
+iso_random_nw_naa_1
+T5
+iso_random_nw_sarada_8
+T5
+
+
+
+Metrics needed in summary.txt
+Passage and grid reading (T1, T2, T4, T6 each need all of these metrics: wer_ref_hyp, r, scatter plot, MAE_correct_counts, MER, subs_prec, subs_r, subs_f1, insert_p, insert_r, insert_f1, del_prec, del_r, del_f1, mistakes_prec, mistakes_r, mistakes_f1). More info about these are given below:
+ASR WER: wer_ref_hyp
+EGRA:
+Correlation coefficient r (see next slide) between predicted (hyp-ref) and actual number of correct (can-ref) words per utterance (segment)
+Scatter plot in code
+MAE between correct counts. This is MAE between EGRA_ACC and ASR_EGRA_ACC (not normalised)
+EGRA_ACC = can_ref
+ASR_EGRA_ACC = hyp_ref
+Finer grained:
+Mistake error rate (MER)
+Substitution P, R, F1
+Insertion P, R, F1
+Deletion P, R, F1
+All mistakes P, R, F1
+Isolated letters, syllables and non-words (T3, T5, T7 and each has the metrics: wer_ref_hyp, egra_acc, corr_mistake_pred_prec,  corr_mistake_pred_r,  corr_mistake_pred_f1, baseline_prec, baseline_r, baseline_f1):
+ASR WER: wer_ref_hyp
+EGRA accuracy = {TP + TN}/{N}
+P, R, F1 for correct mistake prediction (label 1 = {mistake})
+P, R, F1 for majority baseline
+
+
 ---
 
 ## Straight forward steps
