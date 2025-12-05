@@ -18,10 +18,9 @@ services:
   nemo-asr:
     <<: *egra_base
     container_name: nemo-asr
-    # Enable GPU access for this service when the host supports NVIDIA GPUs.
-    # Requires the NVIDIA container toolkit on the host. If you don't have a GPU
-    # or don't want GPU access, remove or comment out the following line.
-    gpus: "all"
+    # GPU access is disabled by default to avoid nvidia-container errors on hosts
+    # without a properly configured NVIDIA driver / toolkit. To enable GPU, uncomment:
+    # gpus: "all"
 
   egra-eval:
     <<: *egra_base

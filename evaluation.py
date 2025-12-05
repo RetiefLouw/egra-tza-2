@@ -25,11 +25,14 @@ from egra_eval.data.nemo_manifest import load_many_manifests
 from egra_eval.data.passage_merge import attach_passage_texts
 from egra_eval.data.textgrid_io import add_refs_from_textgrid
 from egra_eval.eval.run_eval import evaluate
+from egra_eval.metrics.phonological import compute_phonological_metrics_row
 from egra_eval.report.summarize import (
+    aggregate_phonological_metrics,
     summary_for_pair,
     summary_per_speaker,
     summary_per_speaker_macro,
     summary_per_speaker_subcategory,
+    summary_phonological_by_category,
 )
 
 CONSONANTS = set("bcdfghjklmnpqrstvwxyz")
@@ -105,9 +108,10 @@ def compute_fine_grained_metrics(row) -> pd.Series:
     Computes MER, P/R/F1 for substitutions, insertions, deletions, and all mistakes.
     Uses Alignment of Alignments (Meta-Alignment).
     """
-    can = row.get('canonical_text', '')
-    ref = row.get('reference_text', '')
-    hyp = row.get('hypothesis_text', '')
+    # Handle both naming conventions: lowercase with _text suffix or uppercase
+    can = row.get('canonical_text', row.get('CAN', ''))
+    ref = row.get('reference_text', row.get('REF', ''))
+    hyp = row.get('hypothesis_text', row.get('HYP', ''))
 
     # 1. Generate Sequence A (Reference vs Canonical) and B (Hypothesis vs Canonical)
     # These are lists of 'c', 's', 'i', 'd'
@@ -208,8 +212,10 @@ def calculate_advanced_metrics(df: pd.DataFrame, logger: logging.Logger) -> pd.D
         df["Bias_Baseline_MAE"] = np.nan
 
     # 3. Fine-grained Metrics (MER, P, R, F1)
-    req_cols = ["canonical_text", "reference_text", "hypothesis_text"]
-    if all(c in df.columns for c in req_cols):
+    # Check for either naming convention (CAN/REF/HYP or canonical_text/reference_text/hypothesis_text)
+    has_lowercase = all(c in df.columns for c in ["canonical_text", "reference_text", "hypothesis_text"])
+    has_uppercase = all(c in df.columns for c in ["CAN", "REF", "HYP"])
+    if has_lowercase or has_uppercase:
         # Filter to ensure we don't crash on empty rows, though get_csid handles it
         logger.info("Running alignment-of-alignments (MER/Fine-grained)...")
         fine_grained = df.apply(compute_fine_grained_metrics, axis=1)
@@ -431,6 +437,7 @@ def write_text_summary(df: pd.DataFrame, out_csv: str, logger: logging.Logger) -
 
     summary_path.parent.mkdir(parents=True, exist_ok=True)
     with summary_path.open("w", encoding="utf-8") as f:
+        # Write existing metrics (backward compatible)
         f.write(f"Metric\tValue\n")
         for key in metrics.keys():
             value = metrics[key]
@@ -443,6 +450,81 @@ def write_text_summary(df: pd.DataFrame, out_csv: str, logger: logging.Logger) -
             else:
                 formatted = str(value)
             f.write(f"{key}\t{formatted}\n")
+        
+        # Write new phonological metrics sections
+        f.write("\n")
+        f.write("=== New Metrics: Phonological Processes ===\n")
+        f.write("\n")
+        
+        # Check if phonological metrics exist
+        phono_cols = ['S_TP', 'S_FP', 'S_FN', 'D_TP', 'D_FP', 'D_FN', 'I_TP', 'I_FP', 'I_FN']
+        has_phono = any(col in df.columns for col in phono_cols)
+        
+        if has_phono:
+            # Overall phonological metrics
+            overall_phono = aggregate_phonological_metrics(df, by=None)
+            
+            for error_name, error_label in [('S', 'Substitutions'), ('D', 'Deletions'), ('I', 'Insertions')]:
+                f.write(f"--- {error_label} ---\n")
+                tp = overall_phono.get(f'{error_name}_TP', 0)
+                fp = overall_phono.get(f'{error_name}_FP', 0)
+                fn = overall_phono.get(f'{error_name}_FN', 0)
+                precision = overall_phono.get(f'{error_name}_Precision', float('nan'))
+                recall = overall_phono.get(f'{error_name}_Recall', float('nan'))
+                f1 = overall_phono.get(f'{error_name}_F1', float('nan'))
+                
+                f.write(f"TP\t{tp}\n")
+                f.write(f"FP\t{fp}\n")
+                f.write(f"FN\t{fn}\n")
+                precision_str = f"{precision:.4f}" if not pd.isna(precision) else "NaN"
+                recall_str = f"{recall:.4f}" if not pd.isna(recall) else "NaN"
+                f1_str = f"{f1:.4f}" if not pd.isna(f1) else "NaN"
+                f.write(f"Precision\t{precision_str}\n")
+                f.write(f"Recall\t{recall_str}\n")
+                f.write(f"F1\t{f1_str}\n")
+                f.write("\n")
+            
+            # Aggregate by category
+            f.write("--- By Category ---\n")
+            phono_by_cat = summary_phonological_by_category(df)
+            
+            # Write overall first
+            if '__OVERALL__' in phono_by_cat:
+                f.write("\nOverall:\n")
+                overall = phono_by_cat['__OVERALL__']
+                for error_name in ['S', 'D', 'I']:
+                    tp = overall.get(f'{error_name}_TP', 0)
+                    fp = overall.get(f'{error_name}_FP', 0)
+                    fn = overall.get(f'{error_name}_FN', 0)
+                    precision = overall.get(f'{error_name}_Precision', float('nan'))
+                    recall = overall.get(f'{error_name}_Recall', float('nan'))
+                    f1 = overall.get(f'{error_name}_F1', float('nan'))
+                    precision_str = f"{precision:.4f}" if not pd.isna(precision) else "NaN"
+                    recall_str = f"{recall:.4f}" if not pd.isna(recall) else "NaN"
+                    f1_str = f"{f1:.4f}" if not pd.isna(f1) else "NaN"
+                    f.write(f"  {error_name}: TP={tp}, FP={fp}, FN={fn}, P={precision_str}, R={recall_str}, F1={f1_str}\n")
+            
+            # Write by macro category
+            for key, cat_metrics in phono_by_cat.items():
+                if key == '__OVERALL__':
+                    continue
+                if key.startswith('macro_'):
+                    cat_name = key.replace('macro_', '')
+                    f.write(f"\n{cat_name} (macro):\n")
+                else:
+                    f.write(f"\n{key}:\n")
+                
+                for error_name in ['S', 'D', 'I']:
+                    tp = cat_metrics.get(f'{error_name}_TP', 0)
+                    fp = cat_metrics.get(f'{error_name}_FP', 0)
+                    fn = cat_metrics.get(f'{error_name}_FN', 0)
+                    precision = cat_metrics.get(f'{error_name}_Precision', float('nan'))
+                    recall = cat_metrics.get(f'{error_name}_Recall', float('nan'))
+                    f1 = cat_metrics.get(f'{error_name}_F1', float('nan'))
+                    precision_str = f"{precision:.4f}" if not pd.isna(precision) else "NaN"
+                    recall_str = f"{recall:.4f}" if not pd.isna(recall) else "NaN"
+                    f1_str = f"{f1:.4f}" if not pd.isna(f1) else "NaN"
+                    f.write(f"  {error_name}: TP={tp}, FP={fp}, FN={fn}, P={precision_str}, R={recall_str}, F1={f1_str}\n")
 
     logger.info("Wrote text summary -> %s", summary_path)
     return summary_path
@@ -489,6 +571,13 @@ def main() -> None:
     # --- NEW: Run Advanced Metrics using dp_align ---
     df_results = calculate_advanced_metrics(df_results, logger)
     # ------------------------------------------------
+    
+    # --- NEW: Compute Phonological Metrics (TP/FP/FN for S/D/I) ---
+    logger.info("Computing phonological metrics (TP/FP/FN for substitutions, deletions, insertions)...")
+    phonological_metrics = df_results.apply(compute_phonological_metrics_row, axis=1)
+    phonological_df = pd.DataFrame(list(phonological_metrics))
+    df_results = pd.concat([df_results, phonological_df], axis=1)
+    # ----------------------------------------------------------------
 
     write_detailed_csv(df_results, args.out_csv, logger)
     summary_txt_path = write_text_summary(df_results, args.out_csv, logger)
