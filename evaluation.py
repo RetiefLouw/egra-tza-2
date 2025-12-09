@@ -12,6 +12,8 @@ from typing import Dict, List
 import pandas as pd
 import numpy as np
 from sklearn.metrics import precision_recall_fscore_support
+import matplotlib.pyplot as plt
+from datetime import datetime
 
 # Import the local dp_align module provided in the context
 try:
@@ -250,7 +252,7 @@ def setup_logger() -> logging.Logger:
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Run EGRA evaluation using canonical/ASR data.")
     p.add_argument("--dataset_root", required=True, help="Root folder containing 0_Audio/2_TextGrid and Student_* CSVs.")
-    p.add_argument("--output_root", required=True, help="Directory where outputs will be written (detailed CSV + summary subfolders).")
+    p.add_argument("--output_root", default=None, help="Directory where outputs will be written (detailed CSV + summary subfolders). If omitted, defaults to input_output_data/output/experiments/exp_{YYYY_MM_DD_hh_mm_ss}.")
 
     p.add_argument("--egra_csv", default=None)
     p.add_argument("--meta_csv", default=None)
@@ -281,6 +283,12 @@ def resolve_inputs(args: argparse.Namespace, logger: logging.Logger) -> tuple[Pa
         layout = resolve_dataset_paths(args.dataset_root)
     except DatasetLayoutError as exc:
         raise SystemExit(str(exc)) from exc
+
+    # If output_root not provided, default under repository input_output_data/output/experiments
+    if not args.output_root:
+        default_dir = Path("input_output_data") / "output" / "experiments" / f"exp_{datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}"
+        logger.info("No --output_root supplied; using default: %s", default_dir)
+        args.output_root = str(default_dir)
 
     # Fill inferred CSVs
     args.egra_csv = args.egra_csv or str(layout.canonical_csv)
@@ -459,8 +467,49 @@ def write_text_summary(df: pd.DataFrame, out_csv: str, logger: logging.Logger) -
         f1 = 2 * p * r / (p + r) if (p + r) > 0 else 0.0
         return p, r, f1
 
+    # Prepare a few additional overall metrics to write at the very top
+    # MAE on correct counts (mean of per-row MAE_EGRA_COR) if available
+    if "MAE_EGRA_COR" in df.columns:
+        metrics["MAE_EGRA_COR"] = df["MAE_EGRA_COR"].dropna().mean()
+    else:
+        metrics["MAE_EGRA_COR"] = float("nan")
+
+    # Mistakes F1 (mean across rows) if available
+    if "Mistakes_F1" in df.columns:
+        metrics["Mistakes_F1"] = df["Mistakes_F1"].dropna().mean()
+    else:
+        metrics["Mistakes_F1"] = float("nan")
+
     summary_path.parent.mkdir(parents=True, exist_ok=True)
     with summary_path.open("w", encoding="utf-8") as f:
+        # Write a compact overall metrics table first
+        f.write("Metric\tValue\n")
+        # Desired ordering for the top table
+        top_keys = [
+            "EGRA-COR",
+            "EGRA-ACC",
+            "ASR-EGRA-COR",
+            "ASR-EGRA-ACC",
+            "MAE_EGRA_COR",
+            "MAE_EGRA_ACC",
+            "Bias_Baseline_MAE",
+            "MER",
+            "Mistakes_F1",
+            "ASR_WER",
+        ]
+        for k in top_keys:
+            v = metrics.get(k, float("nan"))
+            if pd.isna(v):
+                out_val = "NaN"
+            elif isinstance(v, (int, np.integer)):
+                out_val = f"{int(v)}"
+            elif isinstance(v, float) or isinstance(v, np.floating):
+                out_val = f"{v:.2f}"
+            else:
+                out_val = str(v)
+            f.write(f"{k}\t{out_val}\n")
+        f.write("\n")
+
         f.write("=== MAPPED METRICS ===\n\n")
 
         for task_id, cat_name in task_map.items():
@@ -509,6 +558,33 @@ def write_text_summary(df: pd.DataFrame, out_csv: str, logger: logging.Logger) -
                         else:
                             r_val = "Not Available"
                 f.write(f"r: {r_val}\n")
+                # Save scatter plot for this category (if we have numeric r and data)
+                try:
+                    scatter_dir = summary_path.parent / "scatter_plots"
+                    scatter_dir.mkdir(parents=True, exist_ok=True)
+                    if isinstance(r_val, float):
+                        common = sel[["C_ref_hyp", "C_can_ref"]].dropna()
+                        if not common.empty:
+                            xs = common["C_can_ref"].to_numpy()
+                            ys = common["C_ref_hyp"].to_numpy()
+                            plt.figure(figsize=(6, 4))
+                            plt.scatter(xs, ys, alpha=0.6, s=20)
+                            # identity line for reference
+                            mn = min(xs.min(), ys.min())
+                            mx = max(xs.max(), ys.max())
+                            plt.plot([mn, mx], [mn, mx], color="gray", linestyle="--", linewidth=0.8)
+                            plt.xlabel("Actual correct count (C_can_ref)")
+                            plt.ylabel("Predicted correct count (C_ref_hyp)")
+                            plt.title(f"{task_id} — {cat_name} — scatter C_can_ref vs C_ref_hyp (r={r_val:.3f})")
+                            fname = f"scatter_{task_id}_{cat_name}_C_can_ref_vs_C_ref_hyp_r{r_val:.3f}.png"
+                            safe_fname = fname.replace(" ", "_")
+                            outpath = scatter_dir / safe_fname
+                            plt.tight_layout()
+                            plt.savefig(outpath)
+                            plt.close()
+                            logger.info("Wrote scatter plot -> %s", outpath)
+                except Exception as exc:  # pragma: no cover - non-fatal plotting
+                    logger.warning("Could not write scatter plot for %s (%s): %s", task_id, cat_name, exc)
                 # MAE on correct counts (mean absolute difference)
                 mae_counts = float(sel["MAE_EGRA_COR"].dropna().mean()) if ("MAE_EGRA_COR" in sel.columns and not sel["MAE_EGRA_COR"].dropna().empty) else metrics.get("MAE_EGRA_ACC", float("nan"))
                 f.write(f"MAE_correct_counts: {mae_counts:.2f}\n")
