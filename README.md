@@ -19,104 +19,7 @@ The purpose of this project is to evaluate NeMo ASR models on the task of early 
 
 The project transcribes the audio files in the input dataset using the input ASR model and computes the KPIs listed above.
 
-
-### Task for new metrics:
-
-The following table has the audio_type variables as they appear in egra_eval_detailed.csv and in which test category the results must be aggregated.
-
-audio_type
-Task
-Passages
-T1
-passage_num11
-T1
-***
-
-
-Syllable Grid
-T2
-full_syllable1_grid
-T2
-full_syllable1_grid
-T2
-***
-
-
-Syllable Isolated
-T3
-iso_syllable1_1
-T3
-iso_syllable1_2
-T3
-iso_syllable1_3
-T3
-iso_syllable1_4
-T3
-iso_syllable1_5
-T3
-rand_syllable_10_1
-T3
-rand_syllable_11_1
-T3
-rand_syllable_12_1
-T3
-rand_syllable_13_1
-T3
-rand_syllable_14_1
-T3
-rand_syllable_15_1
-T3
-rand_syllable_16_1
-T3
-rand_syllable_17_1
-T3
-rand_syllable_18_1
-T3
-rand_syllable_19_1
-T3
-rand_syllable_20_1
-T3
-rand_syllable_6_1
-T3
-rand_syllable_7_1
-T3
-rand_syllable_8_1
-T3
-rand_syllable_9_1
-T3
-***
-
-
-Non-words Grid
-T4
-full_nonword_grid
-T4
-***
-
-
-Non-words Isolated
-T5
-iso_non_word1
-T5
-iso_non_word2
-T5
-iso_non_word3
-T5
-iso_non_word4
-T5
-iso_non_word5
-T5
-iso_random_nw_jami_10
-T5
-iso_random_nw_kamula_2
-T5
-iso_random_nw_kojima_5
-T5
-iso_random_nw_naa_1
-T5
-iso_random_nw_sarada_8
-T5
-
+There are 43 recordings per child that can be categorised into 7 tasks being tested. The [Task Mapping TSV](tools/task_mapping.tsv) organises the recordings into the respective task categories to be used for calculating the egra_eval_summary.txt.
 
 
 Metrics needed in summary.txt
@@ -140,10 +43,56 @@ EGRA accuracy = {TP + TN}/{N}
 P, R, F1 for correct mistake prediction (label 1 = {mistake})
 P, R, F1 for majority baseline
 
+Context
+
+This repository evaluates an ASR (Automatic Speech Recognition) system for Swahili children completing EGRA-style speech tests.
+
+Each child performs 42 tests, grouped into 7 categories (T1–T7).
+The mapping from test → category is defined in the project README.
+
+For each test item, we have three string forms:
+
+Canonical — the target / intended word shown to the child.
+
+Reference (REF) — what the child actually said, human-annotated.
+
+Hypothesis (HYP) — what the ASR system predicted the child said.
+
+The current evaluation pipeline already produces an egra_eval_summary.txt file with several metrics.
+
+Additional metrics (described in the README under Task for New Metrics) and ensure they appear in the generated egra_eval_summary.txt, aggregated per test category (T1–T7) and overall.
+
+New Metrics to Add
+
+The README defines multiple phonological metrics that must now be computed using the canonical, reference, and hypothesis forms.
+
+A typical example:
+
+Substitution Precision Example
+
+True substitutions = differences between reference and canonical
+Predicted substitutions = differences between hypothesis and canonical
+Metric = How well HYP predicts the same substitutions that REF made.
+
+Each metric follows this pattern:
+Compare REF vs CANONICAL → child’s true phonological process
+Compare HYP vs CANONICAL → system’s predicted phonological process
+
+Compute true positives, false positives, false negatives
+
+Derive:
+Precision
+Recall
+F1-score
+
+Counts as needed (TP, FP, FN)
+
+These metrics must be computed inside each test category and optionally aggregated across all tests.
 
 ---
 
 ## Straight forward steps
+
 
 1. **Build the Docker image** (CPU by default):  
    `docker compose build`

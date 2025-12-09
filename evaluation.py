@@ -33,6 +33,7 @@ from egra_eval.report.summarize import (
     summary_per_speaker_macro,
     summary_per_speaker_subcategory,
     summary_phonological_by_category,
+    _annotate_audio_categories,
 )
 
 CONSONANTS = set("bcdfghjklmnpqrstvwxyz")
@@ -200,6 +201,12 @@ def calculate_advanced_metrics(df: pd.DataFrame, logger: logging.Logger) -> pd.D
         # Optionally keep MAE in percent points for reporting by multiplying by 100 later in summary writer.
     else:
         df["MAE_EGRA_ACC"] = np.nan
+
+    # Also compute MAE on correct counts (|EGRA_COR - ASR_EGRA_COR|) when counts are available
+    if "C_can_ref" in df.columns and "C_can_hyp" in df.columns:
+        df["MAE_EGRA_COR"] = (df["C_can_ref"] - df["C_can_hyp"]).abs()
+    else:
+        df["MAE_EGRA_COR"] = np.nan
 
     # 2. Bias Baseline
     # Predict the average ACC_can_ref for everyone
@@ -399,135 +406,160 @@ def write_summary_csvs(df: pd.DataFrame, summary_dirs: Dict[str, Path], logger: 
 def write_text_summary(df: pd.DataFrame, out_csv: str, logger: logging.Logger) -> Path:
     summary_path = Path(out_csv).parent / "egra_eval_summary.txt"
 
-    metrics: Dict[str, float] = {
-        "EGRA-COR": float("nan"),
-        "EGRA-ACC": float("nan"),
-        "ASR-EGRA-COR": float("nan"),
-        "ASR-EGRA-ACC": float("nan"),
-        "MAE_EGRA_COR": float("nan"),
-        "MAE_EGRA_ACC": float("nan"),
-        "Bias_Baseline_MAE": float("nan"),
-        "MER": float("nan"),
-        "Mistakes_F1": float("nan"),
-        "ASR_WER": float("nan"),
-    }
-
+    # --- 1. Gather Global Metrics ---
+    metrics = {}
+    
+    # Global EGRA counts
     can_ref = summary_for_pair(df, "can_ref")
     if not can_ref.empty:
         metrics["EGRA-COR"] = can_ref["C_can_ref"].iloc[0]
         metrics["EGRA-ACC"] = can_ref["ACC_can_ref"].iloc[0]
 
+    # Global ASR counts
     can_hyp = summary_for_pair(df, "can_hyp")
     if not can_hyp.empty:
         metrics["ASR-EGRA-COR"] = can_hyp["C_can_hyp"].iloc[0]
         metrics["ASR-EGRA-ACC"] = can_hyp["ACC_can_hyp"].iloc[0]
 
-    # Averages for row-based metrics
-    # Note: MAE_EGRA_ACC is calculated per row in 0..1 space; display as percentage.
-    for m in ["MAE_EGRA_COR", "MAE_EGRA_ACC", "Bias_Baseline_MAE", "MER", "Mistakes_F1"]:
-        if m in df.columns and not df[m].dropna().empty:
-            val = float(df[m].dropna().mean())
-            if m == "MAE_EGRA_ACC":
-                val = val * 100.0  # present MAE_EGRA_ACC as percentage
-            metrics[m] = val
-
+    # Global WER
     ref_hyp = summary_for_pair(df, "ref_hyp")
     if not ref_hyp.empty:
         metrics["ASR_WER"] = ref_hyp["WER_ref_hyp"].iloc[0]
+    
+    # Averages for row-based metrics
+    if "MAE_EGRA_ACC" in df.columns:
+        metrics["MAE_EGRA_ACC"] = df["MAE_EGRA_ACC"].dropna().mean() * 100.0
+    if "Bias_Baseline_MAE" in df.columns:
+        metrics["Bias_Baseline_MAE"] = df["Bias_Baseline_MAE"].dropna().mean()
+    if "MER" in df.columns:
+        metrics["MER"] = df["MER"].dropna().mean()
+
+    # --- 2. Gather Category Data ---
+    # This returns a dict: {'passage_passage': {'S_TP': ...}, 'letters_grid': {...}}
+    phono_by_cat = summary_phonological_by_category(df)
+
+    # --- 3. Define Task Mapping & Groups ---
+    task_map = {
+        'T1': 'passage_passage',
+        'T2': 'syllables_grid',
+        'T3': 'syllables_isolated', 
+        'T4': 'nonwords_grid',
+        'T5': 'nonwords_isolated',
+        'T6': 'letters_grid',
+        'T7': 'letters_isolated'
+    }
+    
+    group_A_tasks = ['T1', 'T2', 'T4', 'T6'] # Passage & Grid
+    group_B_tasks = ['T3', 'T5', 'T7']       # Isolated
+
+    # Helper to calculate P/R/F1 from TP/FP/FN
+    def calc_prf1(tp, fp, fn):
+        p = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+        r = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+        f1 = 2 * p * r / (p + r) if (p + r) > 0 else 0.0
+        return p, r, f1
 
     summary_path.parent.mkdir(parents=True, exist_ok=True)
     with summary_path.open("w", encoding="utf-8") as f:
-        # Write existing metrics (backward compatible)
-        f.write(f"Metric\tValue\n")
-        for key in metrics.keys():
-            value = metrics[key]
-            if isinstance(value, float):
-                if pd.isna(value):
-                    formatted = "NaN"
-                else:
-                    # Use at most 2 decimal places for floats
-                    formatted = f"{value:.2f}"
+        f.write("=== MAPPED METRICS ===\n\n")
+
+        for task_id, cat_name in task_map.items():
+            f.write(f"--- Task {task_id} ({cat_name}) ---\n")
+            
+            # Get specific category data (default to empty dict if missing)
+            cat_data = phono_by_cat.get(cat_name, {})
+            # Annotate dataframe with macro/sub categories and extract rows for this category
+            df_cat = _annotate_audio_categories(df)
+            try:
+                macro, sub = cat_name.split("_", 1)
+            except Exception:
+                macro, sub = (cat_name, None)
+            sel = df_cat[
+                (df_cat["macro_category"] == macro) & (df_cat["sub_category"] == sub)
+            ] if macro is not None and sub is not None else df_cat[df_cat["macro_category"] == macro]
+
+            # Per-category MER (mean of per-row MER column) if available, otherwise fall back to global
+            if not sel.empty and "MER" in sel.columns:
+                cat_mer = float(sel["MER"].dropna().mean())
             else:
-                formatted = str(value)
-            f.write(f"{key}\t{formatted}\n")
-        
-        # Write new phonological metrics sections
-        f.write("\n")
-        f.write("=== New Metrics: Phonological Processes ===\n")
-        f.write("\n")
-        
-        # Check if phonological metrics exist
-        phono_cols = ['S_TP', 'S_FP', 'S_FN', 'D_TP', 'D_FP', 'D_FN', 'I_TP', 'I_FP', 'I_FN']
-        has_phono = any(col in df.columns for col in phono_cols)
-        
-        if has_phono:
-            # Overall phonological metrics
-            overall_phono = aggregate_phonological_metrics(df, by=None)
+                cat_mer = metrics.get("MER", float("nan"))
             
-            for error_name, error_label in [('S', 'Substitutions'), ('D', 'Deletions'), ('I', 'Insertions')]:
-                f.write(f"--- {error_label} ---\n")
-                tp = overall_phono.get(f'{error_name}_TP', 0)
-                fp = overall_phono.get(f'{error_name}_FP', 0)
-                fn = overall_phono.get(f'{error_name}_FN', 0)
-                precision = overall_phono.get(f'{error_name}_Precision', float('nan'))
-                recall = overall_phono.get(f'{error_name}_Recall', float('nan'))
-                f1 = overall_phono.get(f'{error_name}_F1', float('nan'))
+            # Calculate aggregate "Mistakes" (S+D+I) for this category
+            m_tp = sum(cat_data.get(f'{k}_TP', 0) for k in ['S', 'D', 'I'])
+            m_fp = sum(cat_data.get(f'{k}_FP', 0) for k in ['S', 'D', 'I'])
+            m_fn = sum(cat_data.get(f'{k}_FN', 0) for k in ['S', 'D', 'I'])
+            m_p, m_r, m_f1 = calc_prf1(m_tp, m_fp, m_fn)
+
+            # --- Formatting for Group A (Passage & Grid) ---
+            if task_id in group_A_tasks:
+                f.write(f"wer_ref_hyp: {metrics.get('ASR_WER', 'N/A')}\n")
+                # Compute Pearson r between per-utterance predicted correct (C_ref_hyp) and actual correct (C_can_ref)
+                r_val = "Not Available"
+                if not sel.empty and "C_ref_hyp" in sel.columns and "C_can_ref" in sel.columns:
+                    x = sel["C_ref_hyp"].dropna().to_numpy()
+                    y = sel["C_can_ref"].dropna().to_numpy()
+                    # align lengths by index of sel where both present
+                    common = sel[["C_ref_hyp", "C_can_ref"]].dropna()
+                    if len(common) >= 2:
+                        arr_x = common["C_ref_hyp"].to_numpy()
+                        arr_y = common["C_can_ref"].to_numpy()
+                        # require variance
+                        if arr_x.std() > 0 and arr_y.std() > 0:
+                            r_val = float(np.corrcoef(arr_x, arr_y)[0, 1])
+                        else:
+                            r_val = "Not Available"
+                f.write(f"r: {r_val}\n")
+                # MAE on correct counts (mean absolute difference)
+                mae_counts = float(sel["MAE_EGRA_COR"].dropna().mean()) if ("MAE_EGRA_COR" in sel.columns and not sel["MAE_EGRA_COR"].dropna().empty) else metrics.get("MAE_EGRA_ACC", float("nan"))
+                f.write(f"MAE_correct_counts: {mae_counts:.2f}\n")
+                # MER kept as fraction (not percent)
+                f.write(f"MER: {cat_mer:.2f} (fraction)\n")
                 
-                f.write(f"TP\t{tp}\n")
-                f.write(f"FP\t{fp}\n")
-                f.write(f"FN\t{fn}\n")
-                precision_str = f"{precision:.4f}" if not pd.isna(precision) else "NaN"
-                recall_str = f"{recall:.4f}" if not pd.isna(recall) else "NaN"
-                f1_str = f"{f1:.4f}" if not pd.isna(f1) else "NaN"
-                f.write(f"Precision\t{precision_str}\n")
-                f.write(f"Recall\t{recall_str}\n")
-                f.write(f"F1\t{f1_str}\n")
-                f.write("\n")
-            
-            # Aggregate by category
-            f.write("--- By Category ---\n")
-            phono_by_cat = summary_phonological_by_category(df)
-            
-            # Write overall first
-            if '__OVERALL__' in phono_by_cat:
-                f.write("\nOverall:\n")
-                overall = phono_by_cat['__OVERALL__']
-                for error_name in ['S', 'D', 'I']:
-                    tp = overall.get(f'{error_name}_TP', 0)
-                    fp = overall.get(f'{error_name}_FP', 0)
-                    fn = overall.get(f'{error_name}_FN', 0)
-                    precision = overall.get(f'{error_name}_Precision', float('nan'))
-                    recall = overall.get(f'{error_name}_Recall', float('nan'))
-                    f1 = overall.get(f'{error_name}_F1', float('nan'))
-                    precision_str = f"{precision:.4f}" if not pd.isna(precision) else "NaN"
-                    recall_str = f"{recall:.4f}" if not pd.isna(recall) else "NaN"
-                    f1_str = f"{f1:.4f}" if not pd.isna(f1) else "NaN"
-                    f.write(f"  {error_name}: TP={tp}, FP={fp}, FN={fn}, P={precision_str}, R={recall_str}, F1={f1_str}\n")
-            
-            # Write by macro category
-            for key, cat_metrics in phono_by_cat.items():
-                if key == '__OVERALL__':
-                    continue
-                if key.startswith('macro_'):
-                    cat_name = key.replace('macro_', '')
-                    f.write(f"\n{cat_name} (macro):\n")
+                # S, D, I specific metrics
+                for proc_code, proc_name in [('S', 'subs'), ('D', 'del'), ('I', 'insert')]:
+                    p = cat_data.get(f'{proc_code}_Precision', 0.0)
+                    r = cat_data.get(f'{proc_code}_Recall', 0.0)
+                    f1 = cat_data.get(f'{proc_code}_F1', 0.0)
+                    f.write(f"{proc_name}_prec: {p:.4f}\n")
+                    f.write(f"{proc_name}_r: {r:.4f}\n")
+                    f.write(f"{proc_name}_f1: {f1:.4f}\n")
+
+                # Aggregated Mistakes metrics
+                f.write(f"mistakes_prec: {m_p:.4f}\n")
+                f.write(f"mistakes_r: {m_r:.4f}\n")
+                f.write(f"mistakes_f1: {m_f1:.4f}\n")
+
+            # --- Formatting for Group B (Isolated) ---
+            elif task_id in group_B_tasks:
+                f.write(f"wer_ref_hyp: {metrics.get('ASR_WER', 'N/A')}\n")
+                f.write(f"egra_acc: {metrics.get('EGRA-ACC', 'N/A')}\n")
+                
+                # Map 'Mistakes' metrics to 'corr_mistake_pred'
+                f.write(f"corr_mistake_pred_prec: {m_p:.4f}\n")
+                f.write(f"corr_mistake_pred_r: {m_r:.4f}\n")
+                f.write(f"corr_mistake_pred_f1: {m_f1:.4f}\n")
+                # Majority baseline: predict the majority "mistake" label based on REF vs CAN
+                if not sel.empty and all(c in sel.columns for c in ["S_can_ref", "D_can_ref", "I_can_ref"]):
+                    gt = ((sel.get("S_can_ref", 0).fillna(0) + sel.get("D_can_ref", 0).fillna(0) + sel.get("I_can_ref", 0).fillna(0)) > 0).astype(int)
+                    # majority label
+                    maj = int(gt.mode().iloc[0]) if not gt.mode().empty else 0
+                    y_true = gt.values
+                    y_pred = np.full_like(y_true, fill_value=maj)
+                    from sklearn.metrics import precision_recall_fscore_support as prfs
+                    p_b, r_b, f1_b, _ = prfs(y_true, y_pred, labels=[1], zero_division=0)
+                    f.write(f"baseline_prec: {float(p_b[0]):.4f}\n")
+                    f.write(f"baseline_r: {float(r_b[0]):.4f}\n")
+                    f.write(f"baseline_f1: {float(f1_b[0]):.4f}\n")
                 else:
-                    f.write(f"\n{key}:\n")
-                
-                for error_name in ['S', 'D', 'I']:
-                    tp = cat_metrics.get(f'{error_name}_TP', 0)
-                    fp = cat_metrics.get(f'{error_name}_FP', 0)
-                    fn = cat_metrics.get(f'{error_name}_FN', 0)
-                    precision = cat_metrics.get(f'{error_name}_Precision', float('nan'))
-                    recall = cat_metrics.get(f'{error_name}_Recall', float('nan'))
-                    f1 = cat_metrics.get(f'{error_name}_F1', float('nan'))
-                    precision_str = f"{precision:.4f}" if not pd.isna(precision) else "NaN"
-                    recall_str = f"{recall:.4f}" if not pd.isna(recall) else "NaN"
-                    f1_str = f"{f1:.4f}" if not pd.isna(f1) else "NaN"
-                    f.write(f"  {error_name}: TP={tp}, FP={fp}, FN={fn}, P={precision_str}, R={recall_str}, F1={f1_str}\n")
+                    f.write(f"baseline_prec: Not Available\n")
+                    f.write(f"baseline_r: Not Available\n")
+                    f.write(f"baseline_f1: Not Available\n")
+            
+            f.write("\n")
 
     logger.info("Wrote text summary -> %s", summary_path)
     return summary_path
+
 
 # ---------------------------------------------------------------------------
 # Main
