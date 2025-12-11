@@ -6,6 +6,8 @@ from __future__ import annotations
 import argparse
 import logging
 import re
+import string
+from collections import Counter
 from pathlib import Path
 from typing import Dict, List
 
@@ -92,10 +94,24 @@ def get_csid_sequence(canonical_text: str, other_text: str) -> List[str]:
     # Handle NaNs or non-strings
     if pd.isna(canonical_text): canonical_text = ""
     if pd.isna(other_text): other_text = ""
-    
-    # dp_align works on lists of tokens (words), so we split.
-    can_list = str(canonical_text).split()
-    other_list = str(other_text).split()
+
+    # Normalize transcripts (lowercase, remove punctuation, collapse whitespace)
+    def normalize_transcript(text: str) -> str:
+        if text is None:
+            return ""
+        s = str(text).lower()
+        # Replace punctuation with space
+        s = re.sub(r"[{}]".format(re.escape(string.punctuation)), " ", s)
+        # Collapse multiple whitespace and strip
+        s = re.sub(r"\s+", " ", s).strip()
+        return s
+
+    can_norm = normalize_transcript(canonical_text)
+    other_norm = normalize_transcript(other_text)
+
+    # dp_align works on lists of tokens (words), so we split the normalized text.
+    can_list = can_norm.split()
+    other_list = other_norm.split()
     
     # dp_align(ref_list, test_list) -> We treat Canonical as Ref, Other as Test.
     # Returns (errors, alignment). Alignment is list of tuples: (test_token, ref_token, tag)
@@ -637,6 +653,160 @@ def write_text_summary(df: pd.DataFrame, out_csv: str, logger: logging.Logger) -
     return summary_path
 
 
+def write_t1_example_walkthrough(df: pd.DataFrame, out_csv: str, logger: logging.Logger) -> Path:
+    """
+    Produce a step-by-step walkthrough for Task T1 (passage_passage) using a real row.
+    The output file illustrates how the metrics that appear in the T1 block of
+    egra_eval_summary.txt are computed from canonical/reference/hypothesis text.
+    """
+
+    out_path = Path(out_csv).parent / "t1_metric_example.txt"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    df_cat = _annotate_audio_categories(df)
+    sel = df_cat[(df_cat["macro_category"] == "passage") & (df_cat["sub_category"] == "passage")]
+
+    if sel.empty:
+        out_path.write_text("No passage_passage rows were found; cannot build the T1 example.\n", encoding="utf-8")
+        logger.info("No T1 rows found; wrote placeholder at %s", out_path)
+        return out_path
+
+    # Prefer rows that actually have hypotheses attached
+    candidates = sel
+    if "has_hyp" in candidates.columns:
+        candidates = candidates[candidates["has_hyp"] == True]
+    if "HYP" in candidates.columns:
+        candidates = candidates[candidates["HYP"].notna() & (candidates["HYP"].astype(str) != "")]
+    if candidates.empty:
+        candidates = sel
+
+    row = candidates.iloc[0]
+
+    can = row.get("canonical_text", row.get("CAN", ""))
+    ref = row.get("reference_text", row.get("REF", ""))
+    hyp = row.get("hypothesis_text", row.get("HYP", ""))
+
+    # Use same normalization as get_csid_sequence
+    def normalize_transcript(text: str) -> str:
+        if pd.isna(text) or text is None:
+            return ""
+        s = str(text).lower()
+        s = re.sub(r"[{}]".format(re.escape(string.punctuation)), " ", s)
+        s = re.sub(r"\s+", " ", s).strip()
+        return s
+
+    can_norm = normalize_transcript(can)
+    ref_norm = normalize_transcript(ref)
+    hyp_norm = normalize_transcript(hyp)
+
+    can_tokens = can_norm.split()
+    ref_tokens = ref_norm.split()
+    hyp_tokens = hyp_norm.split()
+
+    # Alignment using the same dp_align calls used elsewhere
+    _, align_can_ref = dp_align.dp_align(can_tokens, ref_tokens, output_align=True)
+    _, align_can_hyp = dp_align.dp_align(can_tokens, hyp_tokens, output_align=True)
+
+    seq_ref = [a[2] for a in align_can_ref]
+    seq_hyp = [a[2] for a in align_can_hyp]
+    mer_errors, mer_alignment = dp_align.dp_align(seq_ref, seq_hyp, output_align=True)
+
+    fine_metrics = compute_fine_grained_metrics(row)
+    phono_by_cat = summary_phonological_by_category(df)
+    cat_data = phono_by_cat.get("passage_passage", {})
+
+    # Correlation (r) mirrors the logic in write_text_summary for Group A tasks
+    r_val = "Not Available"
+    sel_counts = sel[["C_ref_hyp", "C_can_ref"]].dropna() if all(c in sel.columns for c in ["C_ref_hyp", "C_can_ref"]) else pd.DataFrame()
+    if not sel_counts.empty and sel_counts["C_ref_hyp"].std() > 0 and sel_counts["C_can_ref"].std() > 0:
+        arr_x = sel_counts["C_ref_hyp"].to_numpy()
+        arr_y = sel_counts["C_can_ref"].to_numpy()
+        r_val = float(np.corrcoef(arr_x, arr_y)[0, 1])
+
+    mae_counts = float(sel["MAE_EGRA_COR"].dropna().mean()) if ("MAE_EGRA_COR" in sel.columns and not sel["MAE_EGRA_COR"].dropna().empty) else float("nan")
+    cat_mer = float(sel["MER"].dropna().mean()) if ("MER" in sel.columns and not sel["MER"].dropna().empty) else float("nan")
+
+    m_tp = sum(cat_data.get(f"{k}_TP", 0) for k in ["S", "D", "I"])
+    m_fp = sum(cat_data.get(f"{k}_FP", 0) for k in ["S", "D", "I"])
+    m_fn = sum(cat_data.get(f"{k}_FN", 0) for k in ["S", "D", "I"])
+    m_p = m_tp / (m_tp + m_fp) if (m_tp + m_fp) > 0 else 0.0
+    m_r = m_tp / (m_tp + m_fn) if (m_tp + m_fn) > 0 else 0.0
+    m_f1 = 2 * m_p * m_r / (m_p + m_r) if (m_p + m_r) > 0 else 0.0
+
+    def _summarize_alignment(alignment, label: str, max_rows: int = 30) -> list[str]:
+        lines = [f"Alignment {label} (showing up to {max_rows} rows):"]
+        for idx, (test_tok, ref_tok, tag) in enumerate(alignment):
+            if idx >= max_rows:
+                lines.append(f"... ({len(alignment) - max_rows} more rows omitted)")
+                break
+            lines.append(f"{idx+1:03d}: CAN='{ref_tok}' | OTHER='{test_tok}' | tag={tag}")
+        return lines
+
+    lines: list[str] = []
+    lines.append("T1 Metric Walkthrough (passage_passage)\n")
+    lines.append("Selected example row (first available with a hypothesis):")
+    lines.append(f"- learner_id: {row.get('learner_id', 'N/A')}")
+    lines.append(f"- audio_file: {row.get('audio_file', 'N/A')}")
+    lines.append(f"- audio_type: {row.get('audio_type', 'N/A')}")
+    lines.append(f"- C_can_ref (actual correct count): {row.get('C_can_ref', 'N/A')}")
+    lines.append(f"- C_ref_hyp (predicted correct count): {row.get('C_ref_hyp', 'N/A')}")
+    lines.append("")
+
+    lines.append("Step 1: Canonical vs Reference alignment (dp_align)")
+    lines.append(f"- Canonical token count: {len(can_tokens)} | Reference token count: {len(ref_tokens)}")
+    lines.append(f"- csid sequence length: {len(seq_ref)} | counts: {dict(Counter(seq_ref))}")
+    lines.extend(_summarize_alignment(align_can_ref, "(CAN vs REF)") )
+    lines.append("")
+
+    lines.append("Step 2: Canonical vs Hypothesis alignment (dp_align)")
+    lines.append(f"- Hypothesis token count: {len(hyp_tokens)}")
+    lines.append(f"- csid sequence length: {len(seq_hyp)} | counts: {dict(Counter(seq_hyp))}")
+    lines.extend(_summarize_alignment(align_can_hyp, "(CAN vs HYP)") )
+    lines.append("")
+
+    lines.append("Step 3: Meta-alignment of mistake sequences (MER)")
+    lines.append(f"- MER WER (sequence-level): {mer_errors.get_wer():.4f}")
+    lines.append(f"- MER alignment length: {len(mer_alignment)}")
+    lines.append(f"- MER alignment sample (seq_b_token | seq_a_token | align_type):")
+    for idx, (pred_tok, true_tok, align_type) in enumerate(mer_alignment[:30]):
+        lines.append(f"  {idx+1:03d}: pred='{pred_tok}' | true='{true_tok}' | align={align_type}")
+    if len(mer_alignment) > 30:
+        lines.append(f"  ... ({len(mer_alignment) - 30} more rows omitted)")
+    lines.append("")
+
+    lines.append("Step 4: Row-level fine-grained metrics (from compute_fine_grained_metrics)")
+    lines.append(f"- MER (row): {fine_metrics.get('MER', float('nan')):.4f}")
+    lines.append(f"- Substitution P/R/F1: {fine_metrics.get('S_Precision', float('nan')):.4f} / {fine_metrics.get('S_Recall', float('nan')):.4f} / {fine_metrics.get('S_F1', float('nan')):.4f}")
+    lines.append(f"- Insertion P/R/F1: {fine_metrics.get('I_Precision', float('nan')):.4f} / {fine_metrics.get('I_Recall', float('nan')):.4f} / {fine_metrics.get('I_F1', float('nan')):.4f}")
+    lines.append(f"- Deletion P/R/F1: {fine_metrics.get('D_Precision', float('nan')):.4f} / {fine_metrics.get('D_Recall', float('nan')):.4f} / {fine_metrics.get('D_F1', float('nan')):.4f}")
+    lines.append(f"- Mistakes (binary) P/R/F1: {fine_metrics.get('Mistakes_Precision', float('nan')):.4f} / {fine_metrics.get('Mistakes_Recall', float('nan')):.4f} / {fine_metrics.get('Mistakes_F1', float('nan')):.4f}")
+    lines.append("")
+
+    lines.append("Step 5: How the T1 summary values are formed")
+    lines.append(f"- WER_ref_hyp (row): {row.get('WER_ref_hyp', float('nan'))}")
+    lines.append(f"- Correlation r uses all T1 rows' (C_can_ref, C_ref_hyp) pairs; this row contributes ({row.get('C_can_ref', 'N/A')}, {row.get('C_ref_hyp', 'N/A')}) -> r = {r_val}")
+    lines.append(f"- MAE_correct_counts for this row: {abs(row.get('C_can_ref', 0) - row.get('C_ref_hyp', 0)) if pd.notna(row.get('C_can_ref', np.nan)) and pd.notna(row.get('C_ref_hyp', np.nan)) else 'N/A'}; category mean = {mae_counts:.4f}")
+    lines.append(f"- Category MER (mean of row MER): {cat_mer:.4f}")
+    lines.append(f"- Category substitution P/R/F1: {cat_data.get('S_Precision', 0.0):.4f} / {cat_data.get('S_Recall', 0.0):.4f} / {cat_data.get('S_F1', 0.0):.4f}")
+    lines.append(f"- Category deletion P/R/F1: {cat_data.get('D_Precision', 0.0):.4f} / {cat_data.get('D_Recall', 0.0):.4f} / {cat_data.get('D_F1', 0.0):.4f}")
+    lines.append(f"- Category insertion P/R/F1: {cat_data.get('I_Precision', 0.0):.4f} / {cat_data.get('I_Recall', 0.0):.4f} / {cat_data.get('I_F1', 0.0):.4f}")
+    lines.append(f"- Category mistakes P/R/F1 (aggregated S+D+I): {m_p:.4f} / {m_r:.4f} / {m_f1:.4f}")
+    lines.append("")
+
+    lines.append("Step 6: Text snippets (original and normalized)")
+    lines.append(f"CAN (original): {can}")
+    lines.append(f"CAN (normalized): {can_norm}")
+    lines.append(f"REF (original): {ref}")
+    lines.append(f"REF (normalized): {ref_norm}")
+    lines.append(f"HYP (original): {hyp}")
+    lines.append(f"HYP (normalized): {hyp_norm}")
+    lines.append("")
+
+    out_path.write_text("\n".join(lines), encoding="utf-8")
+    logger.info("Wrote T1 walkthrough -> %s", out_path)
+    return out_path
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -689,10 +859,12 @@ def main() -> None:
 
     write_detailed_csv(df_results, args.out_csv, logger)
     summary_txt_path = write_text_summary(df_results, args.out_csv, logger)
+    t1_walkthrough_path = write_t1_example_walkthrough(df_results, args.out_csv, logger)
     summary_paths = write_summary_csvs(df_results, summary_dirs, logger)
 
     print("Detailed results:", args.out_csv)
     print("Summary text:", summary_txt_path)
+    print("T1 walkthrough:", t1_walkthrough_path)
     print("Summary directories/files:")
     for path in summary_paths:
         print("  ", path)

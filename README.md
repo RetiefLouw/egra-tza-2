@@ -117,7 +117,6 @@ These metrics must be computed inside each test category and optionally aggregat
    ```bash
    ./run_eval.sh \
      --dataset_root input_output_data/input/<dataset_name> \
-     --output_root input_output_data/output/experiments/<experiment> \
      --passages_csv input_output_data/input/oral_passages.csv \
      --nemo_manifest input_output_data/output/<dataset_name>/nemo_asr_output/transcriptions.jsonl
    ```
@@ -125,7 +124,6 @@ These metrics must be computed inside each test category and optionally aggregat
     ```bash
     ./run_eval.sh \
       --dataset_root input_output_data/input/1_Batch2_Data_16spk_subset \
-      --output_root input_output_data/output/experiments/exp1 \
       --passages_csv input_output_data/input/oral_passages.csv \
       --nemo_manifest input_output_data/output/1_Batch2_Data_16spk_subset/nemo_asr_output/transcriptions.jsonl
     ```
