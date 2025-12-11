@@ -668,22 +668,37 @@ def write_text_summary(df: pd.DataFrame, out_csv: str, logger: logging.Logger) -
                 f.write(f"corr_mistake_pred_prec: {m_p:.4f}\n")
                 f.write(f"corr_mistake_pred_r: {m_r:.4f}\n")
                 f.write(f"corr_mistake_pred_f1: {m_f1:.4f}\n")
-                # Majority baseline: predict the majority "mistake" label based on REF vs CAN
+                # Two simple baselines for isolated tasks:
+                #  - no-mistakes: always predict "no mistake" (never predict a mistake)
+                #  - all-mistakes: always predict "mistake" for every item
                 if not sel.empty and all(c in sel.columns for c in ["S_can_ref", "D_can_ref", "I_can_ref"]):
+                    # Ground-truth binary: 1 = any phonological mistake (S/D/I), 0 = correct
                     gt = ((sel.get("S_can_ref", 0).fillna(0) + sel.get("D_can_ref", 0).fillna(0) + sel.get("I_can_ref", 0).fillna(0)) > 0).astype(int)
-                    # majority label
-                    maj = int(gt.mode().iloc[0]) if not gt.mode().empty else 0
                     y_true = gt.values
-                    y_pred = np.full_like(y_true, fill_value=maj)
                     from sklearn.metrics import precision_recall_fscore_support as prfs
-                    p_b, r_b, f1_b, _ = prfs(y_true, y_pred, labels=[1], zero_division=0)
-                    f.write(f"baseline_prec: {float(p_b[0]):.4f}\n")
-                    f.write(f"baseline_r: {float(r_b[0]):.4f}\n")
-                    f.write(f"baseline_f1: {float(f1_b[0]):.4f}\n")
+
+                    # No-mistakes baseline: predict all zeros
+                    y_pred_no = np.zeros_like(y_true)
+                    p_no, r_no, f1_no, _ = prfs(y_true, y_pred_no, labels=[1], zero_division=0)
+
+                    # All-mistakes baseline: predict all ones
+                    y_pred_all = np.ones_like(y_true)
+                    p_all, r_all, f1_all, _ = prfs(y_true, y_pred_all, labels=[1], zero_division=0)
+
+                    f.write(f"baseline_no_mistakes_prec: {float(p_no[0]):.4f}\n")
+                    f.write(f"baseline_no_mistakes_r: {float(r_no[0]):.4f}\n")
+                    f.write(f"baseline_no_mistakes_f1: {float(f1_no[0]):.4f}\n")
+
+                    f.write(f"baseline_all_mistakes_prec: {float(p_all[0]):.4f}\n")
+                    f.write(f"baseline_all_mistakes_r: {float(r_all[0]):.4f}\n")
+                    f.write(f"baseline_all_mistakes_f1: {float(f1_all[0]):.4f}\n")
                 else:
-                    f.write(f"baseline_prec: Not Available\n")
-                    f.write(f"baseline_r: Not Available\n")
-                    f.write(f"baseline_f1: Not Available\n")
+                    f.write(f"baseline_no_mistakes_prec: Not Available\n")
+                    f.write(f"baseline_no_mistakes_r: Not Available\n")
+                    f.write(f"baseline_no_mistakes_f1: Not Available\n")
+                    f.write(f"baseline_all_mistakes_prec: Not Available\n")
+                    f.write(f"baseline_all_mistakes_r: Not Available\n")
+                    f.write(f"baseline_all_mistakes_f1: Not Available\n")
             
             f.write("\n")
 
