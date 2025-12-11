@@ -386,6 +386,28 @@ def write_detailed_csv(df: pd.DataFrame, path: str, logger: logging.Logger) -> N
         "Bias_Baseline_MAE": "Bias_Baseline_MAE",
         "MER": "Mistake_Error_Rate (MER)",
     }
+    # Defensive deduplication: some upstream joins can produce identical duplicate
+    # rows (observed for `full_syllable1_grid` entries). Prefer dropping duplicates
+    # based on the identifying keys if available, otherwise drop exact duplicates.
+    initial_rows = len(df)
+    # Prefer deduplication that also checks the canonical/reference/hypothesis
+    # text columns when they exist so we don't drop rows that only differ
+    # in those fields. This helps verify whether rows are truly identical.
+    base_keys = ["learner_id", "audio_type", "audio_file"]
+    text_keys = ["CAN", "REF", "HYP", "canonical_text", "reference_text", "hypothesis_text"]
+    subset_keys = [c for c in base_keys + text_keys if c in df.columns]
+
+    if subset_keys:
+        df = df.drop_duplicates(subset=subset_keys, keep="first")
+        removed = initial_rows - len(df)
+        if removed > 0:
+            logger.info("Removed %d duplicate row(s) based on keys %s before writing detailed CSV.", removed, subset_keys)
+    else:
+        df = df.drop_duplicates(keep="first")
+        removed = initial_rows - len(df)
+        if removed > 0:
+            logger.info("Removed %d exact duplicate row(s) before writing detailed CSV.", removed)
+
     df.rename(columns=rename_map).to_csv(path, index=False)
     logger.info("Wrote detailed results -> %s (rows: %d)", path, len(df))
 
