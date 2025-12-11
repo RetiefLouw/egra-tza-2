@@ -216,7 +216,7 @@ def calculate_advanced_metrics(df: pd.DataFrame, logger: logging.Logger) -> pd.D
 
         # Compute per-row MAE in the normalized (0..1) space
         df["MAE_EGRA_ACC"] = (df["ACC_can_ref_norm_for_mae"] - df["ACC_can_hyp_norm_for_mae"]).abs()
-        # Optionally keep MAE in percent points for reporting by multiplying by 100 later in summary writer.
+        # Optionally keep MAE in percent points for reporting by multiplying to 100 later in summary writer.
     else:
         df["MAE_EGRA_ACC"] = np.nan
 
@@ -498,6 +498,22 @@ def write_text_summary(df: pd.DataFrame, out_csv: str, logger: logging.Logger) -
 
     summary_path.parent.mkdir(parents=True, exist_ok=True)
     with summary_path.open("w", encoding="utf-8") as f:
+        # Helper to format numeric values to 4 decimal places for per-task output
+        def _fmt4(val) -> str:
+            if val is None:
+                return "NaN"
+            if isinstance(val, str) and val in ("N/A", "Not Available"):
+                return val
+            try:
+                if pd.isna(val):
+                    return "NaN"
+            except Exception:
+                pass
+            try:
+                return f"{float(val):.4f}"
+            except Exception:
+                return str(val)
+
         # Write a compact overall metrics table first
         f.write("Metric\tValue\n")
         # Desired ordering for the top table
@@ -557,7 +573,7 @@ def write_text_summary(df: pd.DataFrame, out_csv: str, logger: logging.Logger) -
 
             # --- Formatting for Group A (Passage & Grid) ---
             if task_id in group_A_tasks:
-                f.write(f"wer_ref_hyp: {metrics.get('ASR_WER', 'N/A')}\n")
+                f.write(f"wer_ref_hyp: {_fmt4(metrics.get('ASR_WER', 'N/A'))}\n")
                 # Compute Pearson r between per-utterance predicted correct (C_ref_hyp) and actual correct (C_can_ref)
                 r_val = "Not Available"
                 if not sel.empty and "C_ref_hyp" in sel.columns and "C_can_ref" in sel.columns:
@@ -573,7 +589,7 @@ def write_text_summary(df: pd.DataFrame, out_csv: str, logger: logging.Logger) -
                             r_val = float(np.corrcoef(arr_x, arr_y)[0, 1])
                         else:
                             r_val = "Not Available"
-                f.write(f"r: {r_val}\n")
+                f.write(f"r_correlation: {_fmt4(r_val)}\n")
                 # Save scatter plot for this category (if we have numeric r and data)
                 try:
                     scatter_dir = summary_path.parent / "scatter_plots"
@@ -623,8 +639,8 @@ def write_text_summary(df: pd.DataFrame, out_csv: str, logger: logging.Logger) -
 
             # --- Formatting for Group B (Isolated) ---
             elif task_id in group_B_tasks:
-                f.write(f"wer_ref_hyp: {metrics.get('ASR_WER', 'N/A')}\n")
-                f.write(f"egra_acc: {metrics.get('EGRA-ACC', 'N/A')}\n")
+                f.write(f"wer_ref_hyp: {_fmt4(metrics.get('ASR_WER', 'N/A'))}\n")
+                f.write(f"egra_acc: {_fmt4(metrics.get('EGRA-ACC', 'N/A'))}\n")
                 
                 # Map 'Mistakes' metrics to 'corr_mistake_pred'
                 f.write(f"corr_mistake_pred_prec: {m_p:.4f}\n")
@@ -783,8 +799,19 @@ def write_t1_example_walkthrough(df: pd.DataFrame, out_csv: str, logger: logging
     lines.append("")
 
     lines.append("Step 5: How the T1 summary values are formed")
-    lines.append(f"- WER_ref_hyp (row): {row.get('WER_ref_hyp', float('nan'))}")
-    lines.append(f"- Correlation r uses all T1 rows' (C_can_ref, C_ref_hyp) pairs; this row contributes ({row.get('C_can_ref', 'N/A')}, {row.get('C_ref_hyp', 'N/A')}) -> r = {r_val}")
+    def _fmt4_local(v):
+        try:
+            if pd.isna(v):
+                return "NaN"
+        except Exception:
+            pass
+        try:
+            return f"{float(v):.4f}"
+        except Exception:
+            return str(v)
+    
+    lines.append(f"- WER_ref_hyp (row): {_fmt4_local(row.get('WER_ref_hyp', float('nan')))}")
+    lines.append(f"- Correlation r_correlation uses all T1 rows' (C_can_ref, C_ref_hyp) pairs; this row contributes ({row.get('C_can_ref', 'N/A')}, {row.get('C_ref_hyp', 'N/A')}) -> r_correlation = {_fmt4_local(r_val)}")
     lines.append(f"- MAE_correct_counts for this row: {abs(row.get('C_can_ref', 0) - row.get('C_ref_hyp', 0)) if pd.notna(row.get('C_can_ref', np.nan)) and pd.notna(row.get('C_ref_hyp', np.nan)) else 'N/A'}; category mean = {mae_counts:.4f}")
     lines.append(f"- Category MER (mean of row MER): {cat_mer:.4f}")
     lines.append(f"- Category substitution P/R/F1: {cat_data.get('S_Precision', 0.0):.4f} / {cat_data.get('S_Recall', 0.0):.4f} / {cat_data.get('S_F1', 0.0):.4f}")
